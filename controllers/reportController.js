@@ -46,3 +46,23 @@ export const getReportForAUser = async (req, res, next) => {
     next(error);
   }
 };
+
+export const changeReportStatus = async (req, res, next) => {
+  try {
+    const { reportId, status } = req.body;
+
+    const editedReportStatus = await Report.findByIdAndUpdate(
+      reportId,
+      {
+        status,
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.status(200).json(editedReportStatus);
+  } catch (error) {
+    next(error);
+  }
+};
