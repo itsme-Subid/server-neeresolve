@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 export const signUp = async (req, res, next) => {
   try {
-    const { username, email, password } = req.body; // Getting necessary data from the body
+    const { username, email, password, profilePicture, name } = req.body; // Getting necessary data from the body
 
     const emailAlreadyExists = await User.findOne({ email }); //Checking for user already registered or not
     if (emailAlreadyExists) {
@@ -19,6 +19,8 @@ export const signUp = async (req, res, next) => {
       username,
       email,
       password: hashedPassword,
+      profilePicture,
+      name,
     });
 
     await newUser.save(); //Saving the new user document

@@ -6,6 +6,8 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 
 import authRoutes from "./routes/authRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
+
 // Load environment variables from .env
 import dotenv from "dotenv";
 dotenv.config();
@@ -53,3 +55,4 @@ server.listen(PORT, () => {
 
 //API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/report", reportRoutes);
