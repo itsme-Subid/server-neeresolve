@@ -2,7 +2,7 @@ import User from "../models/userModel.js";
 
 export const editDetails = async (req, res, next) => {
   try {
-    const { username, name, profilePicture, userId } = req.body;
+    const { username, name, profilePicture, userId, notificationId } = req.body;
 
     const editedData = await User.findByIdAndUpdate(
       userId,
@@ -10,6 +10,7 @@ export const editDetails = async (req, res, next) => {
         username,
         name,
         profilePicture,
+        notificationId,
       },
       {
         new: true,
@@ -17,6 +18,20 @@ export const editDetails = async (req, res, next) => {
     );
 
     res.status(200).json(editedData);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserDetails = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    console.log(userId);
+
+    const userDetails = await User.findById(userId);
+
+    res.status(200).json(userDetails);
   } catch (error) {
     next(error);
   }
