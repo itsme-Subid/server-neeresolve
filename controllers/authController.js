@@ -4,17 +4,23 @@ import bcrypt from "bcrypt";
 
 export const signUp = async (req, res, next) => {
   try {
-    const { username, email, password, profilePicture, name } = req.body; // Getting necessary data from the body
+    const { username, email, password, profilePicture, name } = req.body; // Destructure data directly in function parameters
 
-    const emailAlreadyExists = await User.findOne({ email }); //Checking for user already registered or not
+    // Check if email already exists
+    const emailAlreadyExists = await User.findOne({ email });
+
     if (emailAlreadyExists) {
-      return res.status(409).json("Email already registered");
+      return res.status(409).json({ error: "Email already registered" }); // Use a consistent error response format
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = bcrypt.hashSync(password, salt); //Hashing the password with bcrypt.js library
+    let hashedPassword;
 
-    //Defining a new user document
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      hashedPassword = bcrypt.hashSync(password, salt);
+    }
+
+    // Create a new user document
     const newUser = new User({
       username,
       email,
@@ -23,9 +29,11 @@ export const signUp = async (req, res, next) => {
       name,
     });
 
-    await newUser.save(); //Saving the new user document
-    res.status(200).json(newUser); //Returing the created user to the client as successfull status
+    await newUser.save(); // Save the new user document
+
+    res.status(200).json(newUser); // Return the created user to the client as a success status
   } catch (error) {
+    console.error(error); // Log the error for debugging purposes
     next(error);
   }
 };
