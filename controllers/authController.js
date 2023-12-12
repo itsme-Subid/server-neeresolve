@@ -31,7 +31,14 @@ export const signUp = async (req, res, next) => {
 
     await newUser.save(); // Save the new user document
 
-    res.status(200).json(newUser); // Return the created user to the client as a success status
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_KEY); //Assigning a new jwt token
+
+    res
+      .cookie("access_token", token, {
+        httpOnly: true,
+      })
+      .status(200)
+      .json({ newUser, token: token }); // Return the created user to the client as a success status
   } catch (error) {
     console.error(error); // Log the error for debugging purposes
     next(error);
