@@ -1,4 +1,5 @@
-import { haversineDistance } from "../helper/getDistanceFromLatLong.js";
+import { filterReportsByLocation } from "../helper/getReportFromLatLong.js";
+import { updatePriority } from "../helper/updatePriority.js";
 import Report from "../models/reportModel.js";
 import Suggestion from "../models/suggestionModel.js";
 
@@ -19,6 +20,7 @@ export const createReport = async (req, res, next) => {
     });
 
     const savedReport = await newReport.save();
+    updatePriority(savedReport._id, lat, long, image);
     res.status(200).json(savedReport);
   } catch (error) {
     next(error);
@@ -82,22 +84,19 @@ export const downvoteSuggestion = async (req, res, next) => {
 
 export const getReports = async (req, res, next) => {
   try {
-    const { lat, long, threshold } = req.params;
+    const { lat, long, threshold } = req.query;
 
     const results = await Report.find();
     if (!results) {
       res.status(404).json({ message: "No reports found" });
     }
     if (lat && long) {
-      const filteredReports = results.filter((report) => {
-        const distance = haversineDistance(
-          +lat,
-          +long,
-          report.location.lat,
-          report.location.long
-        );
-        return distance <= +threshold ?? 1; // 1 km
-      });
+      const filteredReports = filterReportsByLocation(
+        results,
+        +lat,
+        +long,
+        threshold
+      );
       return res.status(200).json(filteredReports);
     }
     return res.status(200).json(results);
