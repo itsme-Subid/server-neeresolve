@@ -1,4 +1,4 @@
-import { haversineDistance } from "./getDistanceFromLatLong";
+import { haversineDistance } from "./getDistanceFromLatLong.js";
 
 export const filterReportsByLocation = (reports, lat, long, threshold) => {
   return reports.filter((report) => {

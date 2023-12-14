@@ -1,5 +1,5 @@
-import { filterReportsByLocation } from "./getReportFromLatLong";
-import { getSimilarity } from "./getSimilarity";
+import { filterReportsByLocation } from "./getReportFromLatLong.js";
+import { getSimilarity } from "./getSimilarity.js";
 import Report from "../models/reportModel.js";
 
 export const updatePriority = async (
