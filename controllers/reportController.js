@@ -59,7 +59,7 @@ export const upvoteSuggestion = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const downvoteSuggestion = async (req, res, next) => {
   const { suggestionId } = req.params;
@@ -78,11 +78,12 @@ export const downvoteSuggestion = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const getReports = async (req, res, next) => {
   try {
-    const { lat, long, threshold } = req.body;
+    const { lat, long, threshold } = req.params;
+
     const results = await Report.find();
     if (!results) {
       res.status(404).json({ message: "No reports found" });
