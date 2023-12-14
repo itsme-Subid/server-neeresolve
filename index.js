@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 import compression from "compression";
 import cors from "cors";
 import { createServer } from "http";
-import { Server } from "socket.io";
 
 import authRoutes from "./routes/authRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 // Load environment variables from .env
 import dotenv from "dotenv";
@@ -16,7 +16,6 @@ dotenv.config();
 //Initialization of server
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
 const PORT = process.env.PORT;
 
 // Middlewares
@@ -58,3 +57,4 @@ server.listen(PORT, () => {
 app.use("/api/auth", authRoutes);
 app.use("/api/report", reportRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/admin", adminRoutes);
