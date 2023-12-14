@@ -2,11 +2,11 @@ import Report from "../models/reportModel.js";
 
 export const createReport = async (req, res, next) => {
   try {
-    const { lat, long, issueDesc, category, images, userId } = req.body;
+    const { lat, long, issueDesc, category, image, userId } = req.body;
 
     const newReport = new Report({
       userId,
-      images,
+      image,
       location: {
         lat,
         long,
@@ -25,7 +25,7 @@ export const createReport = async (req, res, next) => {
 
 export const getReports = async (req, res, next) => {
   try {
-    const query = req.query.q;
+    const {city, } = req.query.q;
 
     const result = await Report.find({});
 
@@ -37,7 +37,7 @@ export const getReports = async (req, res, next) => {
 
 export const getReportForAUser = async (req, res, next) => {
   try {
-    const { id: userId } = req.user;
+    const { userId } = req.params;
 
     const reports = await Report.find({ userId });
 

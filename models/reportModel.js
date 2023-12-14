@@ -15,8 +15,8 @@ const reportSchema = new mongoose.Schema(
     category: {
       type: String,
     },
-    images: {
-      type: [String],
+    image: {
+      type: String,
     },
     status: {
       type: String,

@@ -13,10 +13,7 @@ const router = express.Router();
 router.post("/", createReport);
 
 //Get report of a user
-router.get("/userReports", getReportForAUser);
-
-
-
+router.get("/userReports/:userId", getReportForAUser);
 //Administrations Contol//
 //Get all reports and issues
 router.get("/", getReports);

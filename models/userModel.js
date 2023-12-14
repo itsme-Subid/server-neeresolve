@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema(
     },
     isAdmin: {
       type: String,
+      default: false,
     },
     notificationId: {
       type: String,
