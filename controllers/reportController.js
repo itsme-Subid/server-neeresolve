@@ -85,8 +85,9 @@ export const downvoteSuggestion = async (req, res, next) => {
 export const getReports = async (req, res, next) => {
   try {
     const { lat, long, threshold } = req.query;
-
-    const results = await Report.find();
+    const results = await Report.find({
+      status: "In Review",
+    }).sort({ priority: -1, createdAt: -1 });
     if (!results) {
       res.status(404).json({ message: "No reports found" });
     }
