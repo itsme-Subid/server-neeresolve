@@ -82,7 +82,7 @@ export const downvoteSuggestion = async (req, res, next) => {
 
 export const getReports = async (req, res, next) => {
   try {
-    const { lat, long } = req.body;
+    const { lat, long, threshold } = req.body;
     const results = await Report.find();
     if (!results) {
       res.status(404).json({ message: "No reports found" });
@@ -95,7 +95,7 @@ export const getReports = async (req, res, next) => {
           report.location.lat,
           report.location.long
         );
-        return distance <= 1;
+        return distance <= +threshold ?? 1;
       });
       return res.status(200).json(filteredReports);
     }
