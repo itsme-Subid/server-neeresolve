@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     isAdmin: {
-      type: String,
+      type: Boolean,
       default: false,
     },
     notificationId: {
