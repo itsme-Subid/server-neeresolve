@@ -95,7 +95,7 @@ export const getReports = async (req, res, next) => {
           report.location.lat,
           report.location.long
         );
-        return distance <= +threshold ?? 1;
+        return distance <= +threshold ?? 1; // 1 km
       });
       return res.status(200).json(filteredReports);
     }
