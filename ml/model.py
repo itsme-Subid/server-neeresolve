@@ -56,9 +56,11 @@ def main():
         similarity_score = calculate_cosine_similarity(
             reference_features, comparison_features
         )
-        print(
-            f"Similarity score between {args.reference_image} and {comparison_image_uri}: {similarity_score:.4f}"
-        )
+        # print(
+        #     f"Similarity score between {args.reference_image} and {comparison_image_uri}: {similarity_score:.4f}"
+        # )
+        # return similarity_score
+        print(similarity_score)
 
 if __name__ == "__main__":
     main()

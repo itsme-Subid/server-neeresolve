@@ -20,23 +20,25 @@ export const updatePriority = async (
 
   if (!(filteredReports.length > 0)) return;
 
-  filteredReports.forEach(async (report) => {
-    const similarity = await getSimilarity({ img1: image, img2: report.image });
-    if (!(similarity > 0.7)) return
-    newReport.similarity.push({
-      reportId: report._id,
-      similarity,
-    });
-    newReport.priority += 1;
-    await Report.findByIdAndUpdate(
-      report._id,
-      {
-        priority: report.priority + 1,
-      },
-      {
-        new: true,
+  await Promise.all(
+    filteredReports.map(async (report) => {
+      try {
+        const similarity = await getSimilarity({ img1: image, img2: report.image });
+
+        // Only proceed if the similarity is greater than 0.7
+        if (similarity > 0.7) {
+          await Report.findByIdAndUpdate(report._id, { priority: report.priority + 1 }, { new: true });
+          newReport.priority += 1;
+          newReport.similarity.push({
+            reportId: report._id,
+            similarity,
+          });
+        }
+      } catch (err) {
+        console.error(`Error processing report ${report._id}: ${err}`);
       }
-    );
-  });
+    })
+  );
+
   await newReport.save();
 }
