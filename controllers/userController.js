@@ -2,7 +2,15 @@ import User from "../models/userModel.js";
 
 export const editDetails = async (req, res, next) => {
   try {
-    const { username, name, profilePicture, userId, notificationId } = req.body;
+    const {
+      username,
+      name,
+      profilePicture,
+      userId,
+      notificationId,
+      lat,
+      long,
+    } = req.body;
 
     const editedData = await User.findByIdAndUpdate(
       userId,
@@ -11,6 +19,10 @@ export const editDetails = async (req, res, next) => {
         name,
         profilePicture,
         notificationId,
+        location: {
+          lat,
+          long,
+        },
       },
       {
         new: true,

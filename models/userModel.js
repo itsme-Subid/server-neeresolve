@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
     notificationId: {
       type: String,
     },
+    location: {
+      lat: Number,
+      long: Number,
+    },
   },
   { timestamps: true }
 );
