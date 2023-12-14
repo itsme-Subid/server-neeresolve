@@ -33,7 +33,7 @@ router.get("/suggestion/:reportId", getSuggestions);
 router.get("/userReports/:userId", getReportForAUser);
 //Administrations Contol//
 //Get all reports and issues
-router.get("/", getReports);
+router.get("/:lat/:long/:threshold", getReports);
 
 //Change Report status
 router.put("/edit/status", verifyToken, isAdmin, changeReportStatus);
