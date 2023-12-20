@@ -9,15 +9,8 @@ const MAX_DISTANCE_LIMIT = 20000;
 
 export const createReport = async (req, res, next) => {
   try {
-    const {
-      lat,
-      long,
-      issueDesc,
-      category,
-      image,
-      userId,
-      username,
-    } = req.body;
+    const { lat, long, issueDesc, category, image, userId, username } =
+      req.body;
     const newReport = new Report({
       userId,
       image,
@@ -40,6 +33,57 @@ export const createReport = async (req, res, next) => {
   }
 };
 
+export const likeReport = async (req, res, next) => {
+  try {
+    const { reportId } = req.params;
+    const { userId } = req.body;
+    // check if report exists
+    const report = await Report.findById(reportId);
+    console.log(report, reportId, userId);
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+    // check if user has already liked the report
+    if (report.likes.includes(userId)) {
+      return res.status(400).json({ message: "Already liked" });
+    }
+    // check if user has already disliked the report
+    if (report.dislikes.includes(userId)) {
+      report.dislikes = report.dislikes.filter((dislike) => dislike !== userId);
+    }
+    report.likes.push(userId);
+    await report.save();
+    res.status(200).json(report);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const dislikeReport = async (req, res, next) => {
+  try {
+    const { reportId } = req.params;
+    const { userId } = req.body;
+    // check if report exists
+    const report = await Report.findById(reportId);
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+    // check if user has already disliked the report
+    if (report.dislikes.includes(userId)) {
+      return res.status(400).json({ message: "Already disliked" });
+    }
+    // check if user has already liked the report
+    if (report.likes.includes(userId)) {
+      report.likes = report.likes.filter((like) => like !== userId);
+    }
+    report.dislikes.push(userId);
+    await report.save();
+    res.status(200).json(report);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createSuggestion = async (req, res, next) => {
   try {
     const { userId = "", reportId = "", suggestion = "" } = req.body;
@@ -57,41 +101,39 @@ export const createSuggestion = async (req, res, next) => {
   }
 };
 
-export const voteSuggestion = async (req, res, next) => {
+export const upvoteSuggestion = async (req, res, next) => {
   const { suggestionId } = req.params;
-  const { userId, type } = req.body;
-
+  const { userId } = req.body;
   try {
     const suggestion = await Suggestion.findById(suggestionId);
-
     if (!suggestion) {
-      return res.status(404).json({ message: "Suggestion not found" });
+      res.status(404).json({ message: "Suggestion not found" });
     }
-
-    if (type === "upvote") {
-      if (suggestion.upvotes.includes(userId)) {
-        return res.status(400).json({ message: "Already upvoted" });
-      }
-
-      suggestion.downvotes = suggestion.downvotes.filter(
-        (vote) => vote !== userId
-      );
-
-      suggestion.upvotes.push(userId);
-    } else if (type === "downvote") {
-      if (suggestion.downvotes.includes(userId)) {
-        return res.status(400).json({ message: "Already downvoted" });
-      }
-
-      suggestion.upvotes = suggestion.upvotes.filter((vote) => vote !== userId);
-
-      suggestion.downvotes.push(userId);
-    } else {
-      return res.status(400).json({ message: "Invalid vote type" });
+    if (suggestion.votes.includes(userId)) {
+      res.status(400).json({ message: "Already upvoted" });
     }
-
+    suggestion.votes.push(userId);
     await suggestion.save();
-    return res.status(200).json(suggestion);
+    res.status(200).json(suggestion);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const downvoteSuggestion = async (req, res, next) => {
+  const { suggestionId } = req.params;
+  const { userId } = req.body;
+  try {
+    const suggestion = await Suggestion.findById(suggestionId);
+    if (!suggestion) {
+      res.status(404).json({ message: "Suggestion not found" });
+    }
+    if (!suggestion.votes.includes(userId)) {
+      res.status(400).json({ message: "Already downvoted" });
+    }
+    suggestion.votes = suggestion.votes.filter((vote) => vote !== userId);
+    await suggestion.save();
+    res.status(200).json(suggestion);
   } catch (error) {
     next(error);
   }
@@ -101,7 +143,7 @@ export const getReports = async (req, res, next) => {
   try {
     const { lat, long, threshold } = req.query;
 
-    const results = await Report.find().sort({
+    const results = await Report.find({ status: "In Review" }).sort({
       priority: -1,
       createdAt: -1,
     });
@@ -181,26 +223,6 @@ export const changeReportStatus = async (req, res, next) => {
     );
 
     res.status(200).json(editedReportStatus);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const search = async (req, res, next) => {
-  try {
-    const { address } = req.query;
-
-    if (!address) {
-      return res
-        .status(400)
-        .json({ message: "Address is required for search" });
-    }
-
-    const regex = new RegExp(address, "i");
-
-    const reports = await Report.find({ address: { $regex: regex } });
-
-    res.status(200).json(reports);
   } catch (error) {
     next(error);
   }

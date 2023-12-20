@@ -11,11 +11,7 @@ const suggestionSchema = new mongoose.Schema(
     suggestion: {
       type: String,
     },
-    upvotes: {
-      type: [String],
-      default: [],
-    },
-    downvotes: {
+    votes: {
       type: [String],
       default: [],
     },
