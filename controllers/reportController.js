@@ -2,11 +2,15 @@ import { filterReportsByLocation } from "../helper/getReportFromLatLong.js";
 import { updatePriority } from "../helper/updatePriority.js";
 import Report from "../models/reportModel.js";
 import Suggestion from "../models/suggestionModel.js";
+import { getLocationFromLatLong } from "./locationController.js";
+
+const MINIMUM_REPORTS_THRESHOLD = 10;
+const MAX_DISTANCE_LIMIT = 20000;
 
 export const createReport = async (req, res, next) => {
   try {
-    const { lat, long, issueDesc, category, image, userId } = req.body;
-
+    const { lat, long, issueDesc, category, image, userId, username } =
+      req.body;
     const newReport = new Report({
       userId,
       image,
@@ -17,6 +21,8 @@ export const createReport = async (req, res, next) => {
       issueDesc,
       category,
       status: "In Review",
+      username,
+      address: await getLocationFromLatLong(lat, long),
     });
 
     const savedReport = await newReport.save();
@@ -85,21 +91,42 @@ export const downvoteSuggestion = async (req, res, next) => {
 export const getReports = async (req, res, next) => {
   try {
     const { lat, long, threshold } = req.query;
-    const results = await Report.find({
-      status: "In Review",
-    }).sort({ priority: -1, createdAt: -1 });
-    if (!results) {
-      res.status(404).json({ message: "No reports found" });
+
+    const results = await Report.find({ status: "In Review" }).sort({
+      priority: -1,
+      createdAt: -1,
+    });
+
+    if (!results || results.length === 0) {
+      return res.status(200).json([]);
     }
+
     if (lat && long) {
-      const filteredReports = filterReportsByLocation(
+      let filteredReports = filterReportsByLocation(
         results,
         +lat,
         +long,
         threshold
       );
+
+      const shouldRetry =
+        filteredReports.length < MINIMUM_REPORTS_THRESHOLD &&
+        results.length > MINIMUM_REPORTS_THRESHOLD &&
+        2 * threshold < MAX_DISTANCE_LIMIT;
+
+      if (shouldRetry) {
+        const doubledThresholdReports = filterReportsByLocation(
+          results,
+          +lat,
+          +long,
+          2 * threshold
+        );
+        filteredReports = doubledThresholdReports;
+      }
+
       return res.status(200).json(filteredReports);
     }
+
     return res.status(200).json(results);
   } catch (error) {
     next(error);

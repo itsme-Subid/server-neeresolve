@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import mapRoutes from "./routes/mapRoutes.js";
 
 // Load environment variables from .env
 import dotenv from "dotenv";
@@ -58,3 +59,4 @@ app.use("/api/auth", authRoutes);
 app.use("/api/report", reportRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/map", mapRoutes);

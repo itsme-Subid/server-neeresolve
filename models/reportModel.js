@@ -35,6 +35,12 @@ const reportSchema = new mongoose.Schema(
         },
       },
     ],
+    username: {
+      type: String,
+    },
+    address: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
