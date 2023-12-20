@@ -5,7 +5,6 @@ import bcrypt from "bcrypt";
 export const signUp = async (req, res, next) => {
   try {
     const { username, email, password, profilePicture, name } = req.body; // Destructure data directly in function parameters
-
     // Check if email already exists
     const emailAlreadyExists = await User.findOne({ email });
 
