@@ -9,8 +9,15 @@ const MAX_DISTANCE_LIMIT = 20000;
 
 export const createReport = async (req, res, next) => {
   try {
-    const { lat, long, issueDesc, category, image, userId, username } =
-      req.body;
+    const {
+      lat,
+      long,
+      issueDesc,
+      category,
+      image,
+      userId,
+      username,
+    } = req.body;
     const newReport = new Report({
       userId,
       image,
@@ -50,39 +57,41 @@ export const createSuggestion = async (req, res, next) => {
   }
 };
 
-export const upvoteSuggestion = async (req, res, next) => {
+export const voteSuggestion = async (req, res, next) => {
   const { suggestionId } = req.params;
-  const { userId } = req.body;
-  try {
-    const suggestion = await Suggestion.findById(suggestionId);
-    if (!suggestion) {
-      res.status(404).json({ message: "Suggestion not found" });
-    }
-    if (suggestion.votes.includes(userId)) {
-      res.status(400).json({ message: "Already upvoted" });
-    }
-    suggestion.votes.push(userId);
-    await suggestion.save();
-    res.status(200).json(suggestion);
-  } catch (error) {
-    next(error);
-  }
-};
+  const { userId, type } = req.body;
 
-export const downvoteSuggestion = async (req, res, next) => {
-  const { suggestionId } = req.params;
-  const { userId } = req.body;
   try {
     const suggestion = await Suggestion.findById(suggestionId);
+
     if (!suggestion) {
-      res.status(404).json({ message: "Suggestion not found" });
+      return res.status(404).json({ message: "Suggestion not found" });
     }
-    if (!suggestion.votes.includes(userId)) {
-      res.status(400).json({ message: "Already downvoted" });
+
+    if (type === "upvote") {
+      if (suggestion.upvotes.includes(userId)) {
+        return res.status(400).json({ message: "Already upvoted" });
+      }
+
+      suggestion.downvotes = suggestion.downvotes.filter(
+        (vote) => vote !== userId
+      );
+
+      suggestion.upvotes.push(userId);
+    } else if (type === "downvote") {
+      if (suggestion.downvotes.includes(userId)) {
+        return res.status(400).json({ message: "Already downvoted" });
+      }
+
+      suggestion.upvotes = suggestion.upvotes.filter((vote) => vote !== userId);
+
+      suggestion.downvotes.push(userId);
+    } else {
+      return res.status(400).json({ message: "Invalid vote type" });
     }
-    suggestion.votes = suggestion.votes.filter((vote) => vote !== userId);
+
     await suggestion.save();
-    res.status(200).json(suggestion);
+    return res.status(200).json(suggestion);
   } catch (error) {
     next(error);
   }
@@ -92,7 +101,7 @@ export const getReports = async (req, res, next) => {
   try {
     const { lat, long, threshold } = req.query;
 
-    const results = await Report.find({ status: "In Review" }).sort({
+    const results = await Report.find().sort({
       priority: -1,
       createdAt: -1,
     });
@@ -172,6 +181,26 @@ export const changeReportStatus = async (req, res, next) => {
     );
 
     res.status(200).json(editedReportStatus);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const search = async (req, res, next) => {
+  try {
+    const { address } = req.query;
+
+    if (!address) {
+      return res
+        .status(400)
+        .json({ message: "Address is required for search" });
+    }
+
+    const regex = new RegExp(address, "i");
+
+    const reports = await Report.find({ address: { $regex: regex } });
+
+    res.status(200).json(reports);
   } catch (error) {
     next(error);
   }

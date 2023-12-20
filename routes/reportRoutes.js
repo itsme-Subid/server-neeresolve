@@ -3,11 +3,11 @@ import {
   changeReportStatus,
   createReport,
   createSuggestion,
-  downvoteSuggestion,
   getReportForAUser,
   getReports,
   getSuggestions,
-  upvoteSuggestion,
+  search,
+  voteSuggestion,
 } from "../controllers/reportController.js";
 import { isAdmin } from "../isAdmin.js";
 import { verifyToken } from "../verifyToken.js";
@@ -20,11 +20,8 @@ router.post("/", createReport);
 // create suggestion
 router.post("/suggestion", createSuggestion);
 
-// upvote suggestion
-router.patch("/suggestion/upvote/:suggestionId", upvoteSuggestion)
-
-// downvote suggestion
-router.patch("/suggestion/downvote/:suggestionId", downvoteSuggestion)
+// upvote/downvote suggestion
+router.patch("/suggestion/vote/:suggestionId", voteSuggestion);
 
 // Get suggestions for a report
 router.get("/suggestion/:reportId", getSuggestions);
@@ -36,6 +33,9 @@ router.get("/userReports/:userId", getReportForAUser);
 router.get("/", getReports);
 
 //Change Report status
-router.put("/edit/status", verifyToken, isAdmin, changeReportStatus);
+router.put("/edit/status", changeReportStatus);
+
+//Search api which searches for address
+router.get("/search", search);
 
 export default router;
